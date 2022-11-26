@@ -17,7 +17,7 @@ from sklearn.metrics import precision_score, recall_score, confusion_matrix
 from sklearn import preprocessing
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
-import altair as alt
+
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
