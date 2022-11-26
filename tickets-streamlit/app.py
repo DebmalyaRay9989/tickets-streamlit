@@ -18,10 +18,9 @@ from sklearn import preprocessing
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 import altair as alt
-import streamlit_theme as stt
+
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
-stt.set_theme({'primary': '#1b3388'})
 
 st.title("SR Ticket Classification Web App")
 st.sidebar.title("Categorical Classification")
