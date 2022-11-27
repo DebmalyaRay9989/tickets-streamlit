@@ -21,6 +21,7 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 
 st.title("SR Ticket Classification Web App")
+st.subheader("Creator : Debmalya Ray")
 st.sidebar.title("Categorical Classification")
 
 
