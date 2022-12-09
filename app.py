@@ -58,11 +58,6 @@ def main():
 			if st.checkbox("Summary"):
 				st.write(df.describe())
 
-			if st.checkbox("Show Selected Columns"):
-				selected_columns = st.multiselect("Select Columns",all_columns)
-				new_df = df[selected_columns]
-				st.dataframe(new_df)
-
 			if st.checkbox("Show Value Counts"):
 				st.write(df.iloc[:,-1].value_counts())
 
