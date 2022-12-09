@@ -26,7 +26,6 @@ from sklearn.metrics import f1_score
 
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
-stt.set_theme({'primary': '#1b3388'})
 
 st.title("SR Ticket Classification Web App")
 st.subheader("Creator : Debmalya Ray")
