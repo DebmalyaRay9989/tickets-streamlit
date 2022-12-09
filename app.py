@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt 
 import matplotlib
-import seaborn as sns 
+import seaborn as sns
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -17,10 +17,17 @@ from sklearn.metrics import precision_score, recall_score, confusion_matrix
 from sklearn import preprocessing
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import classification_report
+import altair as alt
+from sklearn.preprocessing import StandardScaler
+import streamlit_theme as stt
+from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
+from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import f1_score
 
 
 st.set_option('deprecation.showPyplotGlobalUse', False)
-
+stt.set_theme({'primary': '#1b3388'})
 
 st.title("SR Ticket Classification Web App")
 st.subheader("Creator : Debmalya Ray")
@@ -28,7 +35,8 @@ st.sidebar.title("Categorical Classification")
 
 
 def main():
-	"""Semi Automated ML App with Streamlit """
+
+	""" Semi Automated ML App with Streamlit """
 
 	activities = ["EDA","Plots","Machine_Learning"]	
 	choice = st.sidebar.selectbox("Select Activities",activities)
@@ -40,7 +48,6 @@ def main():
 		if data is not None:
 			df = pd.read_csv(data)
 			st.dataframe(df.head())
-			
 
 			if st.checkbox("Show Shape"):
 				st.write(df.shape)
@@ -92,7 +99,6 @@ def main():
 
 			if st.button("Generate Plot"):
 				st.success("Generating Customizable Plot of {} for {}".format(type_of_plot,selected_columns_names))
-
 				if type_of_plot == 'area':
 					cust_data = df[selected_columns_names]
 					st.area_chart(cust_data)
@@ -126,8 +132,31 @@ def main():
 			df['Severity'] = label_encoder.fit_transform(df['Severity'])
 			df['Priority'] = label_encoder.fit_transform(df['Priority'])
 			df['Satisfaction'] = label_encoder.fit_transform(df['Satisfaction'])
+
 			X = (df.drop(columns=df[['Priority']],axis=0)).values
 			Y = (df.iloc[:,-1:]).values
+		# =======================================================================
+		# SCALING :
+		# ========================================================================
+			scaler = StandardScaler()
+			X=scaler.fit_transform(X)
+			X  = pd.DataFrame(X)
+			X.rename(columns={0:"ticket", 1:"requestor", 2:"RequestorSeniority", 3:"ITOwner", 4:"FiledAgainst", 5:"TicketType", 6:"Severity", 7:"daysOpen", 8:"Satisfaction"}, inplace=True)
+		#	Y = scaler.fit_transform(Y)
+		#	Y = pd.DataFrame(Y)
+		#	Y.rename(columns={0:"Priority"}, inplace=True)
+		# ==============================================================================
+		#  FEATURE   SELECTION  :
+		# ==============================================================================
+
+			from sklearn.ensemble import ExtraTreesClassifier
+			Ext = ExtraTreesClassifier()
+			Ext.fit(X,Y)
+			print(Ext.feature_importances_)
+
+
+			X.drop(columns="TicketType", inplace=True)
+			X.drop(columns="FiledAgainst", inplace=True)
 
 			X_train,X_test,Y_train,Y_test = train_test_split(X,Y)
 			#st.sidebar.subheader("Model Hyper-parameters")
@@ -157,12 +186,17 @@ def main():
 				d =  {0: '0 - Unassigned', 1: '1 - Low', 2: '2 - Medium', 3: '3 - High'}
 				y_result = y_result["Predict"].map(d)
 				accuracy = model.score(X_test, Y_test)
-
 				plt.figure(figsize=(10,6), dpi=80, facecolor='blue')
 				bw = y_result.value_counts()
 
 				explode=(0.1, 0.1, 0.1, 0.3)
 				st.write("Test Accuracy : ", accuracy.round(2))
+				precision = round(precision_score(y_pred, Y_test, average='micro'),2)
+				st.write("Precision : ", precision)
+				recall = round(recall_score(y_pred, Y_test, average='micro'),2)
+				st.write("Recall : ", recall)
+				macro_averaged_f1 = f1_score(Y_test, y_pred, average = 'micro')
+				st.write("F1 Score:", macro_averaged_f1)
 				st.write("Confusion Matrix : ", confusion_matrix(Y_test, y_pred))
 				st.write("Test Results Shape : ", X_test.shape)
 				st.write("Prediction Results : ", y_result.value_counts())
@@ -192,6 +226,12 @@ def main():
 				bw = y_result.value_counts()
 				explode=(0.1, 0.1, 0.1, 0.3)
 				st.write("Test Accuracy : ", accuracy.round(2))
+				precision = round(precision_score(y_pred, Y_test, average='micro'),2)
+				st.write("Precision : ", precision)
+				recall = round(recall_score(y_pred, Y_test, average='micro'),2)
+				st.write("Recall : ", recall)
+				macro_averaged_f1 = f1_score(Y_test, y_pred, average = 'micro')
+				st.write("F1 Score:", macro_averaged_f1)
 				st.write("Confusion Matrix : ", confusion_matrix(Y_test, y_pred))
 				st.write("Test Results Shape : ", X_test.shape)
 				st.write("Prediction Results : ", y_result.value_counts())
@@ -203,7 +243,7 @@ def main():
 				st.sidebar.subheader("Model Hyper-parameters")
 				n_estimators = st.sidebar.number_input("n_estimators", 100, 200, step=10, key='n_estimators')
 				st.subheader("Ada Boosting Results")
-				model = AdaBoostClassifier(n_estimators=n_estimators)
+				model = AdaBoostClassifier(n_estimators=n_estimators, learning_rate=1, random_state=0)
 				model.fit(X_train,Y_train)
 				accuracy = model.score(X_test, Y_test)
 				y_pred = model.predict(X_test)
@@ -219,6 +259,12 @@ def main():
 				bw = y_result.value_counts()
 
 				st.write("Test Accuracy : ", accuracy.round(2))
+				precision = round(precision_score(y_pred, Y_test, average='micro'),2)
+				st.write("Precision : ", precision)
+				recall = round(recall_score(y_pred, Y_test, average='micro'),2)
+				st.write("Recall : ", recall)
+				macro_averaged_f1 = f1_score(Y_test, y_pred, average = 'micro')
+				st.write("F1 Score:", macro_averaged_f1)
 				st.write("Confusion Matrix : ", confusion_matrix(Y_test, y_pred))
 				st.write("Test Results Shape : ", X_test.shape)
 				st.write("Prediction Results : ", y_result.value_counts())
