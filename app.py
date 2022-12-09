@@ -20,7 +20,6 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import classification_report
 import altair as alt
 from sklearn.preprocessing import StandardScaler
-import streamlit_theme as stt
 from sklearn.metrics import plot_confusion_matrix, plot_roc_curve, plot_precision_recall_curve
 from sklearn.metrics import precision_score, recall_score
 from sklearn.metrics import f1_score
